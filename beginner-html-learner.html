@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beginner HTML Learner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&display=swap">
+<style>
+:root{--bg:#eaf3f7;--ink:#0f2a3a;--muted:#3d5a6b;--line:#b9d2de;--accent:#c2570a;--field:#fff;--link:#0b5c85;--btn:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1c27;--ink:#e8f2f7;--muted:#9db8c6;--line:#254456;--accent:#f5a04a;--field:#12293a;--link:#7fc4e6;--btn:#1b0f02;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1c27;--ink:#e8f2f7;--muted:#9db8c6;--line:#254456;--accent:#f5a04a;--field:#12293a;--link:#7fc4e6;--btn:#1b0f02;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{--bg:#eaf3f7;--ink:#0f2a3a;--muted:#3d5a6b;--line:#b9d2de;--accent:#c2570a;--field:#fff;--link:#0b5c85;--btn:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1c27;--ink:#e8f2f7;--muted:#9db8c6;--line:#254456;--accent:#f5a04a;--field:#12293a;--link:#7fc4e6;--btn:#1b0f02;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1c27;--ink:#e8f2f7;--muted:#9db8c6;--line:#254456;--accent:#f5a04a;--field:#12293a;--link:#7fc4e6;--btn:#1b0f02;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:56rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+h1{font-size:clamp(2rem,6vw,3.25rem);line-height:1.1;margin:.5rem 0 .25rem}
+button{font:inherit;font-weight:700;color:var(--btn);background:var(--accent);border:0;border-radius:999px;padding:.7rem 1.4rem;cursor:pointer}
+:root:not([data-theme="dark"]) button{color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:var(--btn)}}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+a{color:var(--link)}
+h2{font-size:1.4rem;margin:2.5rem 0 1rem}
+.peek{outline:3px dashed var(--accent);outline-offset:4px}
+.inspect{outline:3px dashed var(--accent);outline-offset:4px}
+svg .inspect{outline:none;stroke:#f5a04a;stroke-width:3}
+#code{background:#1e1e1e;color:#d4d4d4;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;padding:0 0 1rem;overflow:auto;position:relative}
+@media(min-width:900px){body{display:grid;grid-template-columns:minmax(0,1fr) 30rem;align-items:start}#code{position:sticky;top:0;height:100vh}}
+@media(max-width:899px){#code{max-height:70vh;margin:0 1.25rem 2rem;border-radius:10px}}
+#code h2{margin:0;padding:.8rem 1rem .2rem;font:700 14px "Bricolage Grotesque",system-ui,sans-serif;color:#fff}
+#code>p{margin:0;padding:0 1rem .8rem;font:12px/1.5 system-ui,sans-serif;color:#9db8c6}
+.ln{display:flex;white-space:pre-wrap;overflow-wrap:anywhere}
+.ln .num{flex:0 0 2.6rem;text-align:right;padding-right:.8rem;color:#858585;user-select:none}
+.ln .cd{flex:1;padding-right:.8rem}
+.ln.on{background:rgba(86,156,214,.22)}
+.ln.first{box-shadow:inset 3px 0 0 #f5a04a}
+#code .t{color:#569cd6}#code .a{color:#9cdcfe}#code .s{color:#ce9178}
+#tip{position:fixed;z-index:10;pointer-events:none;background:#0b1a24;color:#e8f2f7;border-radius:10px;padding:.75rem 1rem;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:.9rem;line-height:1.5}
+#tip[hidden]{display:none}
+#tip pre{margin:0 0 .6rem;white-space:pre-wrap;overflow-wrap:anywhere;font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace}
+#tip p{margin:0;color:#b9d2de}
+#tip .t{color:#ffb86b}#tip .a{color:#7fd4ff}#tip .s{color:#a5e08a}
+.back{margin:0 0 1rem}
+.hint{display:inline-block;margin:0 0 1.5rem;padding:.4rem 1rem;border:2px dashed var(--accent);border-radius:999px;font-size:.95rem}
+.demo{margin:1.5rem 0;padding:1rem 1.25rem;background:var(--field);border-left:5px solid var(--accent)}
+.demo svg{width:7rem;height:auto;display:block}
+input[type=text]{font:inherit;color:inherit;background:var(--field);border:2px solid var(--line);border-radius:999px;padding:.6rem 1rem;margin-right:.5rem}
+ul{padding-left:1.4rem}
+</style>
+</head>
+<body>
+<main>
+  <p class="back"><a href="penguin-search.html" data-tip="back">← Back to Penguin Search</a></p>
+  <p class="hint" data-tip="hint">Hover your mouse over anything. The code is on the right.</p>
+  <h1 data-tip="h1">Hello, penguin!</h1>
+  <p data-tip="p1">This is my <strong data-tip="strong">first</strong> web page.</p>
+  <div class="demo" data-tip="demo">
+    <svg viewBox="0 0 100 130" data-tip="svg" role="img" aria-label="A little penguin">
+      <ellipse cx="50" cy="75" rx="36" ry="48" fill="#0f2a3a"/>
+      <ellipse cx="50" cy="85" rx="24" ry="34" fill="#fff"/>
+      <circle cx="40" cy="45" r="4" fill="#fff"/>
+      <circle cx="60" cy="45" r="4" fill="#fff"/>
+      <polygon points="42,55 58,55 50,66" fill="#f5a04a"/>
+      <ellipse cx="38" cy="124" rx="10" ry="4" fill="#f5a04a"/>
+      <ellipse cx="62" cy="124" rx="10" ry="4" fill="#f5a04a"/>
+    </svg>
+  </div>
+  <h2 data-tip="h2">Things penguins like</h2>
+  <ul data-tip="ul">
+    <li data-tip="li">Fish</li>
+    <li data-tip="li">Ice</li>
+    <li data-tip="li">Swimming</li>
+  </ul>
+  <p><a href="https://en.wikipedia.org/wiki/Penguin" data-tip="a">Read about penguins</a></p>
+  <p><input type="text" placeholder="Type here" data-tip="input"><button type="button" data-tip="button">Click me</button></p>
+</main>
+<aside id="code" aria-label="Code of this page"></aside>
+<div id="tip" hidden></div>
+<script>
+const TIPS={
+back:{code:"<a href=\"penguin-search.html\">← Back to Penguin Search</a>",note:"A link. a means link. href is where it goes. Here it goes back to the big page."},
+hint:{code:"<p class=\"hint\">Hover your mouse over anything.</p>",note:"p means paragraph. It is a piece of text. class is just a name tag, so the style knows which p to color."},
+h1:{code:"<h1>Hello, penguin!</h1>",note:"h1 means the biggest title. There is only one on a page. See the <h1> at the start and the </h1> at the end? The slash / means STOP."},
+p1:{code:"<p>This is my <strong>first</strong> web page.</p>",note:"p is a paragraph, a piece of text. You can put a tag inside a tag, like a small box in a bigger box."},
+strong:{code:"<strong>first</strong>",note:"strong makes the word thick and important. It sits inside the p."},
+demo:{code:"<div class=\"demo\"> … </div>",note:"div is an empty box. It does nothing alone. It keeps things together, like a toy box. This one holds the penguin."},
+svg:{code:"<svg viewBox=\"0 0 100 130\"> … </svg>",note:"svg is a drawing made with words, not a photo. viewBox is the size of the paper: 100 wide, 130 tall."},
+h2:{code:"<h2>Things penguins like</h2>",note:"h2 is a smaller title than h1. There are h1 to h6. The bigger the number, the smaller the title."},
+ul:{code:"<ul>\n  <li>Fish</li>\n  <li>Ice</li>\n  <li>Swimming</li>\n</ul>",note:"ul is a list with dots. ul means unordered list. The list is a box. The li things go inside it."},
+li:{code:"<li>Fish</li>",note:"li is one thing in the list. li means list item. Each li gets its own dot."},
+a:{code:"<a href=\"https://en.wikipedia.org/wiki/Penguin\">Read about penguins</a>",note:"a is a link. The words between the tags are what you see. href is where the link goes when you click."},
+input:{code:"<input type=\"text\" placeholder=\"Type here\">",note:"input is a box where you can type. type=\"text\" says it is for words. placeholder is the grey help text. It has no closing tag, because there is nothing inside it."},
+button:{code:"<button type=\"button\">Click me</button>",note:"button is a thing you can press. The words between the tags are written on it. It does nothing yet. Later, JavaScript can tell it what to do."}
+};
+const tip=document.getElementById('tip');let cur=null;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function hl(c){return c.replace(/<[^>]*>|[^<]+/g,m=>{if(m[0]!=='<')return esc(m);return esc(m).replace(/^(&lt;\/?)([\w-]+)/,'$1<span class="t">$2</span>').replace(/(\s)([\w-]+)(=)(&quot;.*?&quot;)/g,'$1<span class="a">$2</span>$3<span class="s">$4</span>')})}
+function show(el){const t=TIPS[el.dataset.tip];if(!t)return hide();if(cur&&cur!==el){cur.classList.remove('peek');cur.style.removeProperty('--zoom')}cur=el;el.classList.add('peek');
+tip.style.fontSize='';tip.style.overflow='';tip.innerHTML='<pre>'+hl(t.code)+'</pre><p>'+esc(t.note)+'</p>';tip.hidden=false;
+const lim=limitX();const w=Math.min(440,lim-16);tip.style.width=w+'px';const r=el.getBoundingClientRect();
+let left=Math.max(8,Math.min(r.left,lim-w-8));const h=tip.offsetHeight;
+let top=r.bottom+10;if(top+h>innerHeight-8)top=Math.max(8,r.top-h-10);
+tip.style.left=left+'px';tip.style.top=top+'px'}
+function hide(){tip.hidden=true;if(cur){cur.classList.remove('peek');cur=null}}
+document.addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');el?show(el):hide()});
+document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip]');el?show(el):hide()});
+document.addEventListener('focusout',hide);
+document.documentElement.addEventListener('mouseleave',hide);
+addEventListener('scroll',hide,{passive:true});
+/* Code panel: shows the whole page code and lights up the lines of the element you hover */
+const panel=document.getElementById('code');
+const limitX=()=>innerWidth>=900?panel.getBoundingClientRect().left:innerWidth;
+const VOID=['input','img','br'],SELF=['ellipse','circle','path','line','polygon','rect','use'];
+const rows=[],owners=[],range=new Map();
+function openTag(e){let s='<'+e.localName;for(const a of e.attributes){if(a.name==='data-tip')continue;let v=a.value;if(a.name==='class'){v=v.split(/\s+/).filter(c=>c&&c!=='peek'&&c!=='inspect').join(' ');if(!v)continue}s+=v===''?' '+a.name:' '+a.name+'="'+v+'"'}return s+'>'}
+function add(d,t,e){rows.push({d,t});owners.push(e)}
+function walk(e,d){const n=e.localName,o=openTag(e);const kids=[...e.childNodes].filter(k=>k.nodeType===1||k.textContent.trim());const s=rows.length;
+if(!kids.length){add(d,VOID.includes(n)?o:SELF.includes(n)?o.replace(/>$/,'/>'):o+'</'+n+'>',e)}
+else if(kids.every(k=>k.nodeType===3)){add(d,o+kids.map(k=>k.textContent).join('').trim().replace(/\s+/g,' ')+'</'+n+'>',e)}
+else{add(d,o,e);for(const k of kids){k.nodeType===1?walk(k,d+1):add(d+1,k.textContent.trim().replace(/\s+/g,' '),e)}add(d,'</'+n+'>',e)}
+range.set(e,[s,rows.length-1])}
+add(0,'<!DOCTYPE html>',null);add(0,'<html lang="en">',null);add(1,'<head> … </head>',null);add(1,'<body>',null);
+walk(document.querySelector('main'),2);
+add(2,'<script> … <\/script>',null);add(1,'</body>',null);add(0,'</html>',null);
+panel.innerHTML='<h2>The code of this page</h2><p>Move your mouse over the page. The matching lines light up here. You can also point at a line here.</p>'+rows.map((r,i)=>'<div class="ln"><span class="num">'+(i+1)+'</span><span class="cd" style="padding-left:'+r.d*1.2+'em">'+hl(r.t)+'</span></div>').join('');
+const lineEls=[...panel.querySelectorAll('.ln')];
+let lit=[],insp=null;
+function unlight(){lit.forEach(l=>l.classList.remove('on','first'));lit=[];if(insp){insp.classList.remove('inspect');insp=null}}
+function light(e){unlight();const r=range.get(e);if(!r)return;for(let i=r[0];i<=r[1];i++){lineEls[i].classList.add('on');lit.push(lineEls[i])}lineEls[r[0]].classList.add('first');
+const y=lineEls[r[0]].offsetTop;if(y<panel.scrollTop+60||y>panel.scrollTop+panel.clientHeight-40)panel.scrollTo({top:Math.max(0,y-panel.clientHeight/3),behavior:'smooth'})}
+document.addEventListener('mouseover',e=>{const t=e.target;if(!t.closest)return;
+if(t.closest('main')){light(t)}
+else if(t.closest('#code')){unlight();const l=t.closest('.ln');if(l){const o=owners[lineEls.indexOf(l)];if(o){o.classList.add('inspect');insp=o}}}
+else{unlight()}});
+document.documentElement.addEventListener('mouseleave',unlight);
+</script>
+</body>
+</html>

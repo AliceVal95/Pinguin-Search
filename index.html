@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Penguin Search</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&display=swap">
+<style>
+:root{--bg:#eaf3f7;--ink:#0f2a3a;--muted:#3d5a6b;--line:#b9d2de;--accent:#c2570a;--field:#fff;--link:#0b5c85;--btn:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1c27;--ink:#e8f2f7;--muted:#9db8c6;--line:#254456;--accent:#f5a04a;--field:#12293a;--link:#7fc4e6;--btn:#1b0f02;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1c27;--ink:#e8f2f7;--muted:#9db8c6;--line:#254456;--accent:#f5a04a;--field:#12293a;--link:#7fc4e6;--btn:#1b0f02;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:56rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+header{text-align:center}
+.hint{display:inline-block;margin:0 0 1.5rem;padding:.4rem 1rem;border:2px dashed var(--accent);border-radius:999px;font-size:.95rem}
+.mark{width:7.5rem;height:auto;display:block;margin:0 auto}
+header{position:relative}
+.learner{position:absolute;top:1.75rem;right:-1rem;margin:0;z-index:2}
+.learner-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:10.5rem;height:10.5rem;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;line-height:1.1;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25);border:4px solid #fff;transition:transform .2s ease}
+.clickme{position:absolute;top:-.6rem;left:-1.6rem;padding:.25rem .7rem;border-radius:999px;background:#ffd23f;color:#0f2a3a;border:2px solid #0f2a3a;font-size:.8rem;transform:rotate(-12deg);animation:wiggle 1.4s ease-in-out infinite;white-space:nowrap}
+@keyframes wiggle{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(-5deg) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.clickme{animation:none}}
+.learner-btn:hover{transform:scale(1.08) rotate(-4deg)}
+.learner-btn svg{width:7.6rem;height:auto;display:block;margin-top:.2rem}
+.learner-btn span{margin-bottom:1.1rem;font-size:.95rem}
+@media(max-width:600px){.learner-btn{width:6.5rem;height:6.5rem;font-size:.65rem}.learner-btn svg{width:4rem}.learner-btn span{margin-bottom:.6rem}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .learner-btn{color:var(--btn);border-color:var(--bg)}}
+.hintrow{display:flex;justify-content:center;margin:0 0 1.5rem}
+.hintwrap{position:relative}
+.hintrow .hint{margin:0}
+.pt{overflow:visible;position:absolute;right:100%;top:calc(100% - .4rem);width:7.5rem;height:auto}
+.sign{transform-box:view-box;transform-origin:60px 62px;animation:pump 1s ease-in-out infinite}
+@keyframes pump{0%,100%{transform:translate(0,0) scale(1);filter:drop-shadow(0 0 0 rgba(217,43,43,0))}40%{transform:translate(5px,-5px) scale(1.12);filter:drop-shadow(0 0 6px rgba(217,43,43,.9))}60%{transform:translate(5px,-5px) scale(1.12);filter:drop-shadow(0 0 6px rgba(217,43,43,.9))}}
+@media(max-width:1249px){.hintrow{margin-bottom:7.5rem}.pt{right:auto;left:.5rem;top:calc(100% + .3rem)}}
+h1{font-size:clamp(2rem,6vw,3.25rem);line-height:1.1;margin:.5rem 0 .25rem}
+.tagline{color:var(--muted);margin:0 0 2rem}
+form{display:flex;gap:.5rem;max-width:36rem;margin:0 auto}
+input[type=search]{flex:1;min-width:0;font:inherit;color:inherit;background:var(--field);border:2px solid var(--line);border-radius:999px;padding:.7rem 1.1rem}
+button{font:inherit;font-weight:700;color:var(--btn);background:var(--accent);border:0;border-radius:999px;padding:.7rem 1.4rem;cursor:pointer}
+:root:not([data-theme="dark"]) button{color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:var(--btn)}}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.alt{text-align:center;margin-top:1rem}
+a{color:var(--link)}
+.slide{margin:3rem 0 2rem;padding:1rem 1.25rem;border-left:5px solid var(--accent);background:var(--field)}
+.slide strong{display:block}
+.walkway{position:relative;height:3rem;overflow:hidden;margin-top:3rem}
+.walkway+.slide{margin-top:0}
+.family{position:absolute;bottom:0;left:-9rem;width:9rem;height:3rem;animation:walk 30s linear infinite}
+@keyframes walk{from{left:-9rem}to{left:100%}}
+.family{overflow:visible}
+.slider{transform-box:view-box;transform-origin:100px 46px;animation:slide 30s linear infinite}
+@keyframes slide{0%,50%{transform:none;animation-timing-function:ease-in}80%,100%{transform:translate(1000px,0)}}
+.lie{opacity:0;animation:liedown 30s step-end infinite}.stand{animation:standup 30s step-end infinite}
+@keyframes liedown{0%{opacity:0}50%{opacity:1}}
+@keyframes standup{0%{opacity:1}50%{opacity:0}}
+.pg{transform-box:fill-box;transform-origin:50% 100%;animation:waddle .7s ease-in-out infinite}
+.pg.b{animation-delay:-.2s}.pg.c{animation-delay:-.4s}
+@keyframes waddle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@media (prefers-reduced-motion:reduce){.family{animation:none;left:calc(50% - 4.5rem)}.slider,.stand,.lie{animation:none}.pg{animation:none}.sign{animation:none}}
+h2{font-size:1.4rem;margin:2.5rem 0 1rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1.5rem}
+.fact{border-top:2px solid var(--line);padding-top:.75rem}
+.fact h3{margin:0 0 .25rem;font-size:1.1rem}
+.fact p{margin:0 0 .5rem}
+.lineup{container-type:inline-size;display:flex;flex-wrap:nowrap;align-items:flex-end;justify-content:space-between;padding:7rem 0 .75rem}
+.species{position:relative;flex:none;margin:0}
+.species:last-child{margin-right:5.5cqw}
+.species svg{display:block;height:calc(var(--size)*10.5cqw);aspect-ratio:100/130;overflow:visible;transform-origin:50% 100%;transition:transform .2s ease;pointer-events:none}
+.species figcaption{position:absolute;left:50%;bottom:100%;margin:0 0 .2rem -.35em;padding:.05em .35em;border-radius:.3em;white-space:nowrap;transform-origin:left bottom;transform:rotate(-45deg);font-size:clamp(.6rem,1.45cqw,.8rem);line-height:1.2;pointer-events:none;transition:transform .2s ease}
+.species:hover{z-index:5}
+.species:hover svg{transform:scale(calc(var(--zoom,2.1) / var(--size)))}
+.species:hover figcaption{transform:translateY(calc((var(--zoom,2.1) - var(--size)) * -10.5cqw)) rotate(-45deg);background:var(--bg)}
+@media (prefers-reduced-motion:reduce){.species svg,.species figcaption{transition:none}}
+.peek{outline:3px dashed var(--accent);outline-offset:4px}
+.inspect{outline:3px dashed var(--accent);outline-offset:4px}
+svg .inspect{outline:none;stroke:#f5a04a;stroke-width:3}
+#code{background:#1e1e1e;color:#d4d4d4;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;padding:0 0 1rem;overflow:auto;position:relative}
+@media(min-width:900px){body{display:grid;grid-template-columns:minmax(0,1fr) 30rem;align-items:start}#code{position:sticky;top:0;height:100vh}}
+@media(max-width:899px){#code{max-height:70vh;margin:0 1.25rem 2rem;border-radius:10px}}
+#code h2{margin:0;padding:.8rem 1rem .2rem;font:700 14px "Bricolage Grotesque",system-ui,sans-serif;color:#fff}
+#code>p{margin:0;padding:0 1rem .8rem;font:12px/1.5 system-ui,sans-serif;color:#9db8c6}
+.ln{display:flex;white-space:pre-wrap;overflow-wrap:anywhere}
+.ln .num{flex:0 0 2.6rem;text-align:right;padding-right:.8rem;color:#858585;user-select:none}
+.ln .cd{flex:1;padding-right:.8rem}
+.ln.on{background:rgba(86,156,214,.22)}
+.ln.first{box-shadow:inset 3px 0 0 #f5a04a}
+#code .t{color:#569cd6}#code .a{color:#9cdcfe}#code .s{color:#ce9178}
+#styles{position:sticky;bottom:0;max-height:min(46vh,22rem);overflow:auto;background:#252526;border-top:2px solid #f5a04a;padding:.6rem 1rem .8rem;font-size:12.5px}
+#styles h3{margin:0 0 .4rem;font:700 13px system-ui,sans-serif;color:#fff}
+#styles .rule{margin:.4rem 0 .8rem}
+#styles .sel{color:#d7ba7d}
+#styles .decl{padding-left:1.2em}
+#styles .prop{color:#9cdcfe}#styles .val{color:#ce9178}
+#styles .why{display:block;padding-left:1.2em;color:#8fd19e;font:12px/1.4 system-ui,sans-serif;margin:.05rem 0 .35rem;white-space:normal}
+#tip{position:fixed;z-index:10;pointer-events:none;background:#0b1a24;color:#e8f2f7;border-radius:10px;padding:.75rem 1rem;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:.9rem;line-height:1.5}
+#tip[hidden]{display:none}
+#tip pre{margin:0 0 .6rem;white-space:pre-wrap;overflow-wrap:anywhere;font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace}
+#tip p{margin:0;color:#b9d2de}
+#tip .t{color:#ffb86b}#tip .a{color:#7fd4ff}#tip .s{color:#a5e08a}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="learner"><a class="learner-btn" href="beginner-html-learner.html" data-tip="learnerlink" aria-label="Beginner HTML Learner">
+      <svg viewBox="0 0 100 90" aria-hidden="true">
+        <ellipse cx="42" cy="56" rx="24" ry="30" fill="#0f2a3a"/>
+        <ellipse cx="42" cy="62" rx="15" ry="22" fill="#fff"/>
+        <circle cx="34" cy="38" r="4.5" fill="#fff"/><circle cx="50" cy="38" r="4.5" fill="#fff"/>
+        <circle cx="35" cy="39" r="2" fill="#0f2a3a"/><circle cx="51" cy="39" r="2" fill="#0f2a3a"/>
+        <polygon points="37,45 49,45 43,53" fill="#f5a04a"/>
+        <ellipse cx="32" cy="86" rx="9" ry="3.5" fill="#f5a04a"/><ellipse cx="52" cy="86" rx="9" ry="3.5" fill="#f5a04a"/>
+        <polygon points="64,34 90,34 78,86" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>
+        <path d="M70 46 l1.5 3.2 3.4.4-2.5 2.3.7 3.4-3.1-1.7-3.1 1.7.7-3.4-2.5-2.3 3.4-.4z M80 62 l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z" fill="#fff"/>
+        <polygon points="64,34 73,23 67,13 74,17 77,8 80,17 87,13 81,23 90,34" fill="#ff7eb6" stroke="#b02a6b" stroke-width="1"/>
+        <ellipse cx="72" cy="23" rx="4.5" ry="2.6" fill="#ffd23f" stroke="#8a6a00" stroke-width=".8" transform="rotate(-20 72 23)"/>
+        <ellipse cx="82" cy="23" rx="4.5" ry="2.6" fill="#ffd23f" stroke="#8a6a00" stroke-width=".8" transform="rotate(20 82 23)"/>
+        <path d="M77 24 L73 33 M77 24 L81 33" stroke="#8a6a00" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="77" cy="23.5" r="2.3" fill="#ffd23f" stroke="#8a6a00" stroke-width=".8"/>
+        <path d="M60 58 Q66 54 70 50" stroke="#0f2a3a" stroke-width="6" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span>HTML Learner</span><b class="clickme">Click me!</b></a></p>
+    <div class="hintrow">
+      <div class="hintwrap">
+        <svg class="pt" data-tip="arrow" viewBox="0 0 120 120" role="img" aria-label="A penguin standing below a diagonal red arrow that points at the bottom left corner of the sign">
+          <ellipse cx="34" cy="80" rx="24" ry="34" fill="#0f2a3a" stroke="#7fa6bb" stroke-width="1"/>
+          <ellipse cx="38" cy="86" rx="14" ry="26" fill="#ffffff"/>
+          <circle cx="36" cy="54" r="5.5" fill="#ffffff"/><circle cx="50" cy="54" r="5.5" fill="#ffffff"/>
+          <circle cx="38" cy="55" r="2.6" fill="#0f2a3a"/><circle cx="52" cy="55" r="2.6" fill="#0f2a3a"/>
+          <path d="M46 62 L60 66 L46 70 Z" fill="#f28c28"/>
+          <ellipse cx="24" cy="114" rx="11" ry="4.5" fill="#f28c28"/><ellipse cx="46" cy="114" rx="11" ry="4.5" fill="#f28c28"/>
+          <path d="M52 76 Q58 70 62 62" stroke="#0f2a3a" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <g class="sign"><g transform="translate(60 62) rotate(-42)"><polygon points="0,-5 44,-5 44,-13 70,0 44,13 44,5 0,5" fill="#d92b2b" stroke="#8f1a1a" stroke-width="1.5"/></g></g>
+        </svg>
+        <p class="hint" data-tip="hint">Hover your mouse over anything to see its HTML.</p>
+      </div>
+    </div>
+    <svg class="mark" data-tip="svg" viewBox="0 0 120 140" role="img" aria-label="Penguin illustration">
+      <ellipse cx="60" cy="82" rx="42" ry="52" fill="#0f2a3a"/>
+      <ellipse cx="60" cy="92" rx="26" ry="38" fill="#ffffff"/>
+      <circle cx="47" cy="48" r="6" fill="#ffffff"/><circle cx="73" cy="48" r="6" fill="#ffffff"/>
+      <circle cx="48" cy="49" r="2.5" fill="#0f2a3a"/><circle cx="72" cy="49" r="2.5" fill="#0f2a3a"/>
+      <path d="M52 58 L68 58 L60 70 Z" fill="#f28c28"/>
+      <ellipse cx="44" cy="132" rx="14" ry="5" fill="#f28c28"/><ellipse cx="76" cy="132" rx="14" ry="5" fill="#f28c28"/>
+    </svg>
+    <h1 data-tip="h1">Penguin Search</h1>
+    <p class="tagline" data-tip="tagline">Ask a question about penguins, or anything else.</p>
+    <form data-tip="form" action="https://www.google.com/search" method="get" target="_blank" rel="noopener" role="search">
+      <label for="q" hidden>Search</label>
+      <input data-tip="input" id="q" name="q" type="search" placeholder="How fast can penguins swim?" autocomplete="off">
+      <button data-tip="button" type="submit">Search</button>
+    </form>
+  </header>
+
+  <div class="walkway" aria-hidden="true">
+    <svg class="family" data-tip="family" viewBox="0 0 150 50">
+      <g transform="translate(25 46) scale(1.05)"><g class="pg a">
+        <ellipse cx="0" cy="-20" rx="11" ry="18" fill="#0f2a3a" stroke="#7fa6bb" stroke-width=".8"/>
+        <ellipse cx="2" cy="-17" rx="7" ry="13" fill="#ffffff"/>
+        <circle cx="4" cy="-31" r="2.4" fill="#ffffff"/><circle cx="4.8" cy="-31" r="1.1" fill="#0f2a3a"/>
+        <path d="M8 -28 L15 -26 L8 -24 Z" fill="#f28c28"/>
+        <ellipse cx="-3" cy="-1" rx="5" ry="2" fill="#f28c28"/><ellipse cx="5" cy="-1" rx="5" ry="2" fill="#f28c28"/>
+      </g></g>
+      <g transform="translate(65 46) scale(.95)"><g class="pg b">
+        <ellipse cx="0" cy="-20" rx="11" ry="18" fill="#0f2a3a" stroke="#7fa6bb" stroke-width=".8"/>
+        <ellipse cx="2" cy="-17" rx="7" ry="13" fill="#ffffff"/>
+        <circle cx="4" cy="-31" r="2.4" fill="#ffffff"/><circle cx="4.8" cy="-31" r="1.1" fill="#0f2a3a"/>
+        <path d="M8 -28 L15 -26 L8 -24 Z" fill="#f28c28"/>
+        <ellipse cx="-3" cy="-1" rx="5" ry="2" fill="#f28c28"/><ellipse cx="5" cy="-1" rx="5" ry="2" fill="#f28c28"/>
+      </g></g>
+      <g class="slider"><g class="stand" transform="translate(100 46) scale(.55)"><g class="pg c">
+        <ellipse cx="0" cy="-20" rx="11" ry="18" fill="#0f2a3a" stroke="#7fa6bb" stroke-width="1.4"/>
+        <ellipse cx="2" cy="-17" rx="7" ry="13" fill="#ffffff"/>
+        <circle cx="4" cy="-31" r="2.8" fill="#ffffff"/><circle cx="4.8" cy="-31" r="1.4" fill="#0f2a3a"/>
+        <path d="M8 -28 L15 -26 L8 -24 Z" fill="#f28c28"/>
+        <ellipse cx="-3" cy="-1" rx="5" ry="2" fill="#f28c28"/><ellipse cx="5" cy="-1" rx="5" ry="2" fill="#f28c28"/>
+      </g></g>
+        <g class="lie" transform="translate(100 46) scale(.55)">
+          <ellipse cx="-24" cy="-8" rx="6" ry="2.5" fill="#f28c28"/>
+          <path d="M2 -20 Q-6 -36 -20 -40 Q-10 -28 -8 -19 Z" fill="#1c4157" stroke="#7fa6bb" stroke-width="1"/>
+          <ellipse cx="0" cy="-11" rx="23" ry="11" fill="#0f2a3a" stroke="#7fa6bb" stroke-width="1.4"/>
+          <ellipse cx="2" cy="-6" rx="17" ry="6" fill="#ffffff"/>
+          <path d="M8 -20 Q0 -38 -14 -43 Q-6 -30 -2 -19 Z" fill="#0f2a3a" stroke="#7fa6bb" stroke-width="1"/>
+          <circle cx="20" cy="-15" r="8" fill="#0f2a3a" stroke="#7fa6bb" stroke-width="1.4"/>
+          <circle cx="23" cy="-17" r="2.8" fill="#ffffff"/><circle cx="23.8" cy="-17" r="1.4" fill="#0f2a3a"/>
+          <path d="M27 -14 L37 -12 L27 -10 Z" fill="#f28c28"/>
+        </g></g>
+    </svg>
+  </div>
+  <p class="slide" data-tip="slide"><strong data-tip="strong">Fun fact</strong>Instead of walking everywhere, penguins often slide on their bellies across snow and ice to save energy and travel faster.</p>
+
+  <h2 data-tip="h2">Penguin facts</h2>
+  <div class="facts" data-tip="facts">
+    <article class="fact" data-tip="article">
+      <h3 data-tip="h3">They can’t fly</h3>
+      <p data-tip="p">Penguins are birds that use their wings like flippers to swim underwater.</p>
+      <a data-tip="alink" href="https://en.wikipedia.org/wiki/Penguin" target="_blank" rel="noopener">Read about penguins</a>
+    </article>
+    <article class="fact" data-tip="article">
+      <h3 data-tip="h3">Fast swimmers</h3>
+      <p data-tip="p">Some species can swim at speeds of around 36 km/h.</p>
+      <a data-tip="alink" href="https://en.wikipedia.org/wiki/Penguin" target="_blank" rel="noopener">Read about penguins</a>
+    </article>
+    <article class="fact" data-tip="article">
+      <h3 data-tip="h3">They huddle for warmth</h3>
+      <p data-tip="p">Emperor penguins stand close together to stay warm in freezing Antarctic winds.</p>
+      <a data-tip="alink" href="https://en.wikipedia.org/wiki/Emperor_penguin" target="_blank" rel="noopener">Read about emperor penguins</a>
+    </article>
+  </div>
+
+  <h2 data-tip="h2b">All penguin types</h2>
+  <div class="lineup" data-tip="lineup" role="group" aria-label="All penguin types">
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+          <clipPath id="bodyclip"><ellipse cx="50" cy="76" rx="30" ry="46"/></clipPath>
+          <g id="body">
+            <ellipse cx="20" cy="86" rx="7" ry="23" transform="rotate(12 20 86)" style="fill:var(--back,#0f2a3a)"/>
+            <ellipse cx="80" cy="86" rx="7" ry="23" transform="rotate(-12 80 86)" style="fill:var(--back,#0f2a3a)"/>
+            <ellipse cx="38" cy="124" rx="11" ry="4.5" style="fill:var(--feet,#f28c28)"/>
+            <ellipse cx="62" cy="124" rx="11" ry="4.5" style="fill:var(--feet,#f28c28)"/>
+            <ellipse cx="50" cy="76" rx="30" ry="46" style="fill:var(--back,#0f2a3a)"/>
+            <ellipse cx="50" cy="88" rx="19" ry="33" style="fill:var(--belly,#fff)"/>
+          </g>
+          <g id="face">
+            <circle cx="41" cy="38" r="5" style="fill:var(--eye,#fff)"/><circle cx="59" cy="38" r="5" style="fill:var(--eye,#fff)"/>
+            <circle cx="42" cy="39" r="2.4" style="fill:var(--pupil,#0f2a3a)"/><circle cx="58" cy="39" r="2.4" style="fill:var(--pupil,#0f2a3a)"/>
+            <polygon points="43,47 57,47 50,59" style="fill:var(--bill,#f28c28)"/>
+          </g>
+        </defs>
+      </svg>
+      <figure class="species" data-tip="sp0" style="--size:1.0">
+        <svg viewBox="0 0 100 130" style="--bill:#5b4a42" role="img" aria-label="Emperor penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><ellipse cx="31" cy="50" rx="6" ry="10" fill="#f5c842"/><ellipse cx="69" cy="50" rx="6" ry="10" fill="#f5c842"/><ellipse cx="50" cy="63" rx="15" ry="7" fill="#fbe39b"/></g>
+        <use href="#face"/>
+        </svg>
+        <figcaption>Emperor</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp1" style="--size:0.8">
+        <svg viewBox="0 0 100 130" style="--bill:#b5651d" role="img" aria-label="King penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><ellipse cx="30" cy="49" rx="6" ry="9" fill="#f08a24"/><ellipse cx="70" cy="49" rx="6" ry="9" fill="#f08a24"/><ellipse cx="50" cy="66" rx="14" ry="9" fill="#f6a735"/></g>
+        <use href="#face"/>
+        </svg>
+        <figcaption>King</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp2" style="--size:0.7">
+        <svg viewBox="0 0 100 130" style="--bill:#e8590c" role="img" aria-label="Gentoo penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><ellipse cx="50" cy="32" rx="14" ry="4" fill="#fff"/></g>
+        <use href="#face"/>
+        </svg>
+        <figcaption>Gentoo</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp3" style="--size:0.6">
+        <svg viewBox="0 0 100 130" style="--eye:#1b3a4d;--pupil:#000;--bill:#7a5a52" role="img" aria-label="Adélie penguin">
+        <use href="#body"/>
+        <use href="#face"/>
+        <circle cx="41" cy="38" r="5.8" fill="none" stroke="#fff" stroke-width="2"/><circle cx="59" cy="38" r="5.8" fill="none" stroke="#fff" stroke-width="2"/>
+        </svg>
+        <figcaption>Adélie</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp4" style="--size:0.6">
+        <svg viewBox="0 0 100 130" style="--eye:#222;--pupil:#000;--bill:#222" role="img" aria-label="Chinstrap penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><ellipse cx="50" cy="50" rx="26" ry="16" fill="#fff"/></g><path d="M27 52 Q50 74 73 52" fill="none" stroke="#0f2a3a" stroke-width="3"/>
+        <use href="#face"/>
+        </svg>
+        <figcaption>Chinstrap</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp5" style="--size:0.6">
+        <svg viewBox="0 0 100 130" style="--eye:#b3261e;--bill:#c0662b" role="img" aria-label="Macaroni penguin">
+        <use href="#body"/>
+        <use href="#face"/>
+        <polygon points="50,16 40,14 24,20 12,30 28,28 18,38 36,32 50,28" fill="#f4a321"/><polygon points="50,16 60,14 76,20 88,30 72,28 82,38 64,32 50,28" fill="#f4a321"/>
+        </svg>
+        <figcaption>Macaroni</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp6" style="--size:0.6">
+        <svg viewBox="0 0 100 130" style="--eye:#222;--pupil:#000;--bill:#c0662b" role="img" aria-label="Royal penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><ellipse cx="50" cy="47" rx="24" ry="16" fill="#f4f4f4"/></g>
+        <use href="#face"/>
+        <polygon points="50,16 40,14 24,20 12,30 28,28 18,38 36,32 50,28" fill="#f4a321"/><polygon points="50,16 60,14 76,20 88,30 72,28 82,38 64,32 50,28" fill="#f4a321"/>
+        </svg>
+        <figcaption>Royal</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp7" style="--size:0.5">
+        <svg viewBox="0 0 100 130" style="--eye:#d9342b;--pupil:#400;--bill:#c0392b" role="img" aria-label="Southern rockhopper">
+        <use href="#body"/>
+        <use href="#face"/>
+        <polygon points="42,31 32,21 22,16 27,26 12,22 25,32 14,35 40,34" fill="#f7d51d"/><polygon points="58,31 68,21 78,16 73,26 88,22 75,32 86,35 60,34" fill="#f7d51d"/>
+        </svg>
+        <figcaption>Southern rockhopper</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp8" style="--size:0.47">
+        <svg viewBox="0 0 100 130" style="--eye:#d9342b;--pupil:#400;--bill:#b03a2e" role="img" aria-label="Northern rockhopper">
+        <use href="#body"/>
+        <use href="#face"/>
+        <polygon points="42,31 30,22 14,22 4,34 18,32 8,46 24,38 40,35" fill="#f7d51d"/><polygon points="58,31 70,22 86,22 96,34 82,32 92,46 76,38 60,35" fill="#f7d51d"/>
+        </svg>
+        <figcaption>Northern rockhopper</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp9" style="--size:0.55">
+        <svg viewBox="0 0 100 130" style="--eye:#8b2a1f;--bill:#b5651d" role="img" aria-label="Fiordland penguin">
+        <use href="#body"/>
+        <path d="M33 46 L40 53" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M67 46 L60 53" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <use href="#face"/>
+        <polygon points="42,32 28,26 12,30 24,35 10,42 30,40 41,38" fill="#f7d51d"/><polygon points="58,32 72,26 88,30 76,35 90,42 70,40 59,38" fill="#f7d51d"/>
+        </svg>
+        <figcaption>Fiordland</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp10" style="--size:0.5">
+        <svg viewBox="0 0 100 130" style="--bill:#8a4a2a" role="img" aria-label="Snares penguin">
+        <use href="#body"/>
+        <use href="#face"/>
+        <polygon points="42,32 30,26 18,28 28,34 16,38 36,37" fill="#f7d51d"/><polygon points="58,32 70,26 82,28 72,34 84,38 64,37" fill="#f7d51d"/><ellipse cx="50" cy="48" rx="8" ry="3.4" fill="#e89aa0"/>
+        </svg>
+        <figcaption>Snares</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp11" style="--size:0.55">
+        <svg viewBox="0 0 100 130" style="--eye:#d9342b;--pupil:#400;--bill:#a0522d" role="img" aria-label="Erect-crested penguin">
+        <use href="#body"/>
+        <use href="#face"/>
+        <polygon points="36,32 31,12 40,24 43,6 49,23 54,6 58,24 66,12 64,32" fill="#f7d51d"/>
+        </svg>
+        <figcaption>Erect-crested</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp12" style="--size:0.6">
+        <svg viewBox="0 0 100 130" style="--eye:#f6e27a;--bill:#b6764b" role="img" aria-label="Yellow-eyed penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><path d="M20 40 Q50 33 80 40" fill="none" stroke="#f3d34a" stroke-width="5"/></g>
+        <use href="#face"/>
+        </svg>
+        <figcaption>Yellow-eyed</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp13" style="--size:0.3">
+        <svg viewBox="0 0 100 130" style="--back:#2c5b8a;--bill:#3a3a3a" role="img" aria-label="Little penguin">
+        <use href="#body"/>
+        <use href="#face"/>
+        </svg>
+        <figcaption>Little</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp14" style="--size:0.57">
+        <svg viewBox="0 0 100 130" style="--bill:#2d2d2d" role="img" aria-label="Humboldt penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><path d="M31 70 Q50 82 69 70" fill="none" stroke="#0f2a3a" stroke-width="4"/><path d="M29 34 Q24 52 38 60" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M71 34 Q76 52 62 60" fill="none" stroke="#fff" stroke-width="2.5"/></g>
+        <use href="#face"/>
+        <ellipse cx="50" cy="48" rx="8" ry="3.4" fill="#e89aa0"/>
+        </svg>
+        <figcaption>Humboldt</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp15" style="--size:0.6">
+        <svg viewBox="0 0 100 130" style="--bill:#222" role="img" aria-label="Magellanic penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><path d="M31 68 Q50 80 69 68" fill="none" stroke="#0f2a3a" stroke-width="4"/><path d="M33 85 Q50 95 67 85" fill="none" stroke="#0f2a3a" stroke-width="3.5"/><path d="M29 34 Q24 52 38 60" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M71 34 Q76 52 62 60" fill="none" stroke="#fff" stroke-width="2.5"/></g>
+        <use href="#face"/>
+        </svg>
+        <figcaption>Magellanic</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp16" style="--size:0.57">
+        <svg viewBox="0 0 100 130" style="--bill:#222" role="img" aria-label="African penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><ellipse cx="41" cy="34" rx="6" ry="3" fill="#e86a8a"/><ellipse cx="59" cy="34" rx="6" ry="3" fill="#e86a8a"/><path d="M31 70 Q50 82 69 70" fill="none" stroke="#0f2a3a" stroke-width="4"/><circle cx="44" cy="92" r="1.7" fill="#0f2a3a"/><circle cx="52" cy="96" r="1.7" fill="#0f2a3a"/><circle cx="58" cy="90" r="1.7" fill="#0f2a3a"/><circle cx="48" cy="105" r="1.7" fill="#0f2a3a"/><circle cx="56" cy="107" r="1.7" fill="#0f2a3a"/><circle cx="41" cy="101" r="1.7" fill="#0f2a3a"/><circle cx="62" cy="101" r="1.7" fill="#0f2a3a"/></g>
+        <use href="#face"/>
+        </svg>
+        <figcaption>African</figcaption>
+      </figure>
+      <figure class="species" data-tip="sp17" style="--size:0.45">
+        <svg viewBox="0 0 100 130" style="--back:#25343f;--bill:#2a2a2a" role="img" aria-label="Galápagos penguin">
+        <use href="#body"/>
+        <g clip-path="url(#bodyclip)"><path d="M32 70 Q50 80 68 70" fill="none" stroke="#0f2a3a" stroke-width="3.5"/><path d="M29 34 Q24 52 38 60" fill="none" stroke="#fff" stroke-width="2.5"/><path d="M71 34 Q76 52 62 60" fill="none" stroke="#fff" stroke-width="2.5"/></g>
+        <use href="#face"/>
+        <ellipse cx="50" cy="48" rx="7" ry="2.4" fill="#e9d9a5"/>
+        </svg>
+        <figcaption>Galápagos</figcaption>
+      </figure>
+  </div>
+</main>
+<aside id="code" aria-label="Page code"></aside>
+<div id="tip" role="tooltip" hidden></div>
+<script>
+const TIPS={
+learnerlink:{code:"<a href=\"beginner-html-learner.html\">\n  <svg> … a learning penguin … </svg>\n  <span>HTML Learner</span>\n  <b>Click me!</b>\n</a>",note:"A big round link. a means link. href is the place it goes when you click: the easy page for beginners. The penguin carries a Schultüte, because it is going to school! b makes the words thick, like the yellow Click me! sign."},
+arrow:{code:'<svg class="pt" viewBox="0 0 120 120">\n  <ellipse cx="34" cy="80" rx="24" ry="34" fill="#0f2a3a"/>\n  <g transform="translate(60 62) rotate(-42)">\n    <polygon points="0,-5 44,-5 44,-13 70,0 44,13 44,5 0,5" fill="#d92b2b"/>\n  </g>\n</svg>',note:'A penguin standing below a red arrow. The arrow points diagonally at the bottom left corner of the sign. "ellipse" draws the oval body. "polygon" draws the arrow: each pair of numbers is one corner. The arrow was drawn flat, pointing right. Then "rotate(-42)" turns it 42 degrees upwards, and "translate" moves it to the penguin. CSS puts the whole picture under the sign with "position: absolute". The arrow nudges forward and back: "animation: nudge 1.6s ease-in-out infinite".'},
+family:{code:'<svg class="family" viewBox="0 0 150 50">\n  <g transform="translate(25 46) scale(1.05)">\n    <g class="pg a"> … penguin shapes … </g>\n  </g>\n  … mama and baby …\n</svg>',note:'Three penguins: papa, mama and baby. <g> is a group. It keeps shapes together, so they can move as one. translate moves a group, scale makes it bigger or smaller. The baby is in its own group, so it can lie down and slide on its belly at the end, with its flippers up and its beak in front. The WALKING is not HTML. It is CSS. In the style part at the top, "animation: walk 30s linear infinite" means: do the move called walk, take 30 seconds, always the same speed, and never stop. @keyframes walk says where it starts (left) and where it ends (right).'},
+sp0:{code:"<figure class=\"species\" style=\"--size:1.0\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#5b4a42\">\n    <use href=\"#body\"/>\n    <ellipse cx=\"31\" cy=\"50\" rx=\"6\" ry=\"10\" fill=\"#f5c842\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Emperor</figcaption>\n</figure>",note:"The biggest penguin of all: about as tall as a 5-year-old child. Look for the yellow patches near its ears and on its neck. In the code, the patches are ellipses (ovals) with a yellow fill."},
+sp1:{code:"<figure class=\"species\" style=\"--size:0.8\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#b5651d\">\n    <use href=\"#body\"/>\n    <ellipse cx=\"30\" cy=\"49\" rx=\"6\" ry=\"9\" fill=\"#f08a24\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>King</figcaption>\n</figure>",note:"The second biggest penguin. It looks like the Emperor, but its ear patches and chest are bright orange. In the code, the orange parts are ellipses with an orange fill."},
+sp2:{code:"<figure class=\"species\" style=\"--size:0.7\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#e8590c\">\n    <use href=\"#body\"/>\n    <ellipse cx=\"50\" cy=\"32\" rx=\"14\" ry=\"4\" fill=\"#fff\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Gentoo</figcaption>\n</figure>",note:"Look for the white band across the top of its head and the orange-red bill. The gentoo is the fastest swimmer: about 36 km/h. The white band is one ellipse (oval)."},
+sp3:{code:"<figure class=\"species\" style=\"--size:0.6\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#1b3a4d;--pupil:#000;--bill:#7a5a52\">\n    <use href=\"#body\"/>\n    <circle cx=\"41\" cy=\"38\" r=\"5.8\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Adélie</figcaption>\n</figure>",note:"A black head with a white ring around each eye. It was named after Adèle, the wife of a French explorer. In the code, the ring is a circle with no fill, only a white outline called stroke."},
+sp4:{code:"<figure class=\"species\" style=\"--size:0.6\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#222;--pupil:#000;--bill:#222\">\n    <use href=\"#body\"/>\n    <path d=\"M27 52 Q50 74 73 52\" fill=\"none\" stroke=\"#0f2a3a\" stroke-width=\"3\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Chinstrap</figcaption>\n</figure>",note:"It has a thin black line under its chin, like the strap of a helmet. That is where its name comes from. In the code, the line is a curved path with stroke-width 3."},
+sp5:{code:"<figure class=\"species\" style=\"--size:0.6\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#b3261e;--bill:#c0662b\">\n    <use href=\"#body\"/>\n    <polygon points=\"50,16 40,14 24,20 12,30 28,28 18,38 36,32 50,28\" fill=\"#f4a321\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Macaroni</figcaption>\n</figure>",note:"Orange-yellow feathers that meet in the middle of the forehead, like a funny hairdo. The name comes from an old English word for people with fancy hair. The feathers are polygons: shapes with many corners."},
+sp6:{code:"<figure class=\"species\" style=\"--size:0.6\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#222;--pupil:#000;--bill:#c0662b\">\n    <use href=\"#body\"/>\n    <ellipse cx=\"50\" cy=\"47\" rx=\"24\" ry=\"16\" fill=\"#f4f4f4\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Royal</figcaption>\n</figure>",note:"Like the Macaroni penguin, but with a pale white face. It breeds only on one island, Macquarie Island. The white face is an ellipse drawn first, so the eyes sit on top of it."},
+sp7:{code:"<figure class=\"species\" style=\"--size:0.5\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#d9342b;--pupil:#400;--bill:#c0392b\">\n    <use href=\"#body\"/>\n    <polygon points=\"42,31 32,21 22,16 27,26 12,22 25,32 14,35 40,34\" fill=\"#f7d51d\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Southern rockhopper</figcaption>\n</figure>",note:"Red eyes and spiky yellow eyebrows. Rockhoppers jump over rocks with both feet at the same time! The eyebrows are polygons."},
+sp8:{code:"<figure class=\"species\" style=\"--size:0.47\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#d9342b;--pupil:#400;--bill:#b03a2e\">\n    <use href=\"#body\"/>\n    <polygon points=\"42,31 30,22 14,22 4,34 18,32 8,46 24,38 40,35\" fill=\"#f7d51d\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Northern rockhopper</figcaption>\n</figure>",note:"Like the southern rockhopper, but its yellow eyebrow feathers are longer and hang down. In the code, it is a bigger polygon with different corner numbers."},
+sp9:{code:"<figure class=\"species\" style=\"--size:0.55\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#8b2a1f;--bill:#b5651d\">\n    <use href=\"#body\"/>\n    <polygon points=\"42,32 28,26 12,30 24,35 10,42 30,40 41,38\" fill=\"#f7d51d\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Fiordland</figcaption>\n</figure>",note:"Lives in Fiordland in New Zealand. Look for yellow stripes over the eyes and thin white stripes on the cheeks. The white stripes are paths with a white stroke."},
+sp10:{code:"<figure class=\"species\" style=\"--size:0.5\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#8a4a2a\">\n    <use href=\"#body\"/>\n    <ellipse cx=\"50\" cy=\"48\" rx=\"8\" ry=\"3.4\" fill=\"#e89aa0\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Snares</figcaption>\n</figure>",note:"Lives only on the Snares Islands near New Zealand. It has a yellow crest and a pink patch of skin at the bottom of the bill. The pink patch is a small ellipse on top of the bill."},
+sp11:{code:"<figure class=\"species\" style=\"--size:0.55\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#d9342b;--pupil:#400;--bill:#a0522d\">\n    <use href=\"#body\"/>\n    <polygon points=\"36,32 31,12 40,24 43,6 49,23 54,6 58,24 66,12 64,32\" fill=\"#f7d51d\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Erect-crested</figcaption>\n</figure>",note:"Its yellow crest stands straight up! The crest is one polygon with spikes. Every pair of numbers in points is one corner, and the computer connects them in order."},
+sp12:{code:"<figure class=\"species\" style=\"--size:0.6\">\n  <svg viewBox=\"0 0 100 130\" style=\"--eye:#f6e27a;--bill:#b6764b\">\n    <use href=\"#body\"/>\n    <path d=\"M20 40 Q50 33 80 40\" fill=\"none\" stroke=\"#f3d34a\" stroke-width=\"5\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Yellow-eyed</figcaption>\n</figure>",note:"Pale yellow eyes and a yellow band around the head. It is one of the rarest penguins in the world. The band is a curved path with a thick yellow stroke."},
+sp13:{code:"<figure class=\"species\" style=\"--size:0.3\">\n  <svg viewBox=\"0 0 100 130\" style=\"--back:#2c5b8a;--bill:#3a3a3a\">\n    <use href=\"#body\"/>\n    --back:#2c5b8a\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Little</figcaption>\n</figure>",note:"The smallest penguin: only about as tall as a bottle. Its back is blue instead of black. In the code, only one color changes. --back is a CSS variable: a name that holds a color."},
+sp14:{code:"<figure class=\"species\" style=\"--size:0.57\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#2d2d2d\">\n    <use href=\"#body\"/>\n    <path d=\"M31 70 Q50 82 69 70\" fill=\"none\" stroke=\"#0f2a3a\" stroke-width=\"4\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Humboldt</figcaption>\n</figure>",note:"Lives on the coast of Peru and Chile. Look for one black band across the chest and pink skin near the bill. The band is a curved path."},
+sp15:{code:"<figure class=\"species\" style=\"--size:0.6\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#222\">\n    <use href=\"#body\"/>\n    <path d=\"M31 68 Q50 80 69 68\" fill=\"none\" stroke=\"#0f2a3a\" stroke-width=\"4\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Magellanic</figcaption>\n</figure>",note:"Two black bands across the chest! It is named after the explorer Magellan. Both bands are curved paths."},
+sp16:{code:"<figure class=\"species\" style=\"--size:0.57\">\n  <svg viewBox=\"0 0 100 130\" style=\"--bill:#222\">\n    <use href=\"#body\"/>\n    <ellipse cx=\"41\" cy=\"34\" rx=\"6\" ry=\"3\" fill=\"#e86a8a\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>African</figcaption>\n</figure>",note:"One black band, black spots on the belly and pink patches above the eyes. It makes a loud sound like a donkey. Each spot is a tiny circle, and each pink patch is an ellipse."},
+sp17:{code:"<figure class=\"species\" style=\"--size:0.45\">\n  <svg viewBox=\"0 0 100 130\" style=\"--back:#25343f;--bill:#2a2a2a\">\n    <use href=\"#body\"/>\n    <path d=\"M32 70 Q50 80 68 70\" fill=\"none\" stroke=\"#0f2a3a\" stroke-width=\"3.5\"/>\n    <use href=\"#face\"/>\n  </svg>\n  <figcaption>Galápagos</figcaption>\n</figure>",note:"Lives near the equator, where it is warm. It is the only penguin whose home reaches north of the equator. It is small, with one black band and a white stripe on its face."},
+lineup:{code:"<div class=\"lineup\">\n  <figure class=\"species\"> … </figure>\n  <figure class=\"species\"> … </figure>\n  … 18 penguins …\n</div>",note:"This is the group of penguins. It is a div (a box) that holds 18 figures. In the CSS, \"display: flex\" puts them next to each other in ONE row, from left to right. The size of every penguin is set with \"cqw\", a unit that means 1% of the width of this row. So all 18 always fit next to each other. \"transform: rotate(-45deg)\" tilts every name. When you hover, \".species:hover svg\" uses \"transform: scale(...)\" to make the penguin bigger, and \"transition\" makes it grow smoothly. Every penguin starts with the same body, saved once as <g id=\"body\"> and copied with <use href=\"#body\"/>. Then each penguin gets its own colors and extra shapes."},
+h2b:{code:"<h2>All penguin types</h2>",note:"The title of this part. h2 means \"heading number 2\"."},
+hint:{code:'<p class="hint">Hover your mouse over anything to see its HTML.</p>',note:'This is the code for the little sentence you hovered. The pointy brackets < > hold secret instructions for the computer. <p> means "a piece of text starts here". </p> means "the text ends here". The slash / always means "stop". class="hint" is just a name tag, so we can make the sentence pretty.'},
+svg:{code:'<svg viewBox="0 0 120 140">\n  <ellipse cx="60" cy="82" rx="42" ry="52" fill="#0f2a3a"/>\n  <circle cx="47" cy="48" r="6" fill="#ffffff"/>\n  <path d="M52 58 L68 58 L60 70 Z" fill="#f28c28"/>\n</svg>',note:'This is a picture! The computer draws it with simple shapes. "ellipse" is an oval (tummy and feet), "circle" is a ball (the eyes), "path" is a line that draws a triangle (the beak). The numbers tell the computer where to put each shape. I cut the code shorter so it is easy to look at. If you had a photo of a penguin instead, you would write <img src="penguin.png"> and the computer would show the photo.'},
+h1:{code:'<h1>Penguin Search</h1>',note:'This is the BIG title of the page. h1 means "heading number 1", the most important headline. <h1> says "the title starts here". </h1> says "the title ends here".'},
+tagline:{code:'<p class="tagline">Ask a question about penguins, or anything else.</p>',note:'This is a normal sentence. p means "paragraph", which is just a bit of text. The words you can read sit between <p> and </p>.'},
+form:{code:'<form action="https://www.google.com/search" method="get" target="_blank">\n  <input name="q" type="search">\n  <button type="submit">Search</button>\n</form>',note:'A form is like a little mailbox. You write something, you press the button, and your words get sent away. Here they go to Google. action says WHERE to send them. target="_blank" means "open it in a new tab".'},
+input:{code:'<input id="q" name="q" type="search" placeholder="How fast can penguins swim?">',note:'This is the empty box where you type. It needs no ending tag. placeholder is the light grey hint inside the box. It disappears when you start typing.'},
+button:{code:'<button type="submit">Search</button>',note:'This is the button you press. The word between the tags, "Search", is what is written on it. type="submit" means "when pressed, send my words away".'},
+slide:{code:'<p class="slide">\n  <strong>Fun fact</strong>\n  Instead of walking everywhere, …\n</p>',note:'Tags can sit inside other tags, like a small box inside a big box. Here the bold word <strong> sits inside the paragraph <p>. You always close the small box first, then the big box. The three dots … mean "more code is here, but I hid it".'},
+strong:{code:'<strong>Fun fact</strong>',note:'strong makes the word thick and bold, so people notice it. Everything between <strong> and </strong> turns bold.'},
+h2:{code:'<h2>Penguin facts</h2>',note:'This is a smaller title. h2 means "heading number 2". There are six sizes: h1 is the biggest and h6 is the smallest.'},
+facts:{code:'<div class="facts">\n  <article class="fact"> … </article>\n  <article class="fact"> … </article>\n  <article class="fact"> … </article>\n</div>',note:'A div is an empty box. It does nothing by itself. We use it like a toy box to put other things inside. This box holds three fact cards. A helper called CSS puts the cards next to each other. The three dots … mean "more code is here, but I hid it".'},
+article:{code:'<article class="fact">\n  <h3>They can’t fly</h3>\n  <p>Penguins are birds …</p>\n  <a href="https://en.wikipedia.org/wiki/Penguin">Read about penguins</a>\n</article>',note:'An article is one little card with its own information. This card has a title (h3), a text (p) and a link (a), all inside it. The three dots … mean "more code is here, but I hid it".'},
+h3:{code:'<h3>They can’t fly</h3>',note:'An even smaller title. h3 means "heading number 3". It is the title of one fact card.'},
+p:{code:'<p>Penguins are birds that use their wings like flippers to swim underwater.</p>',note:'A bit of normal text. p means "paragraph". The words between <p> and </p> are the words you read.'},
+alink:{code:'<a href="https://en.wikipedia.org/wiki/Penguin" target="_blank" rel="noopener">Read about penguins</a>',note:'Another link. Click the words "Read about penguins" and a new tab opens with a page about penguins. href is the address of that page.'}
+};
+const tip=document.getElementById('tip');let cur=null;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function hl(c){return c.replace(/<[^>]*>|[^<]+/g,m=>{if(m[0]!=='<')return esc(m);return esc(m).replace(/^(&lt;\/?)([\w-]+)/,'$1<span class="t">$2</span>').replace(/(\s)([\w-]+)(=)(&quot;.*?&quot;)/g,'$1<span class="a">$2</span>$3<span class="s">$4</span>')})}
+function show(el){const t=TIPS[el.dataset.tip];if(!t)return hide();if(cur&&cur!==el){cur.classList.remove('peek');cur.style.removeProperty('--zoom')}cur=el;el.classList.add('peek');
+tip.style.fontSize='';tip.style.overflow='';tip.innerHTML='<pre>'+hl(t.code)+'</pre><p>'+esc(t.note)+'</p>';tip.hidden=false;
+const lim=limitX();const w=Math.min(440,lim-16);tip.style.width=w+'px';const r=el.getBoundingClientRect();
+let left=Math.max(8,Math.min(r.left,lim-w-8));const h=tip.offsetHeight;
+let top=r.bottom+10;if(top+h>innerHeight-8)top=Math.max(8,r.top-h-10);
+if(el.classList.contains('species')){/* keep the box away from the penguin that grows when you hover */
+const cw=el.parentElement.clientWidth,cap=el.querySelector('figcaption'),ext=(cap.offsetWidth+cap.offsetHeight)*.71+8,grow=z=>.105*z*cw+ext;
+let Z=2.1;left=Math.max(8,Math.min(r.left+r.width/2-w/2,lim-w-8));
+if(r.bottom-grow(Z)-h-10>=8)top=r.bottom-grow(Z)-h-10;
+else{const ew=.105*Z*cw*.77,xr=r.left+r.width/2+ew/2+12,xl=r.left+r.width/2-ew/2-12-w,side=Math.max(8,Math.min(r.bottom-h,innerHeight-h-8));
+if(xr+w<=lim-8){left=xr;top=side}
+else if(xl>=8){left=xl;top=side}
+else{Z=Math.max(parseFloat(el.style.getPropertyValue('--size'))||1,(r.bottom-h-18-ext)/(.105*cw));
+if(r.bottom-grow(Z)-h-10<8){tip.style.fontSize=Math.max(9,14.4*(r.bottom-grow(Z)-18)/h)+'px';tip.style.overflow='hidden'}
+top=Math.max(8,r.bottom-grow(Z)-tip.offsetHeight-10)}}
+el.style.setProperty('--zoom',Z)}
+tip.style.left=left+'px';tip.style.top=top+'px'}
+function hide(){tip.hidden=true;if(cur){cur.classList.remove('peek');cur.style.removeProperty('--zoom');cur=null}}
+document.addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');el?show(el):hide()});
+document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip]');el?show(el):hide()});
+document.addEventListener('focusout',hide);
+document.documentElement.addEventListener('mouseleave',hide);
+addEventListener('scroll',hide,{passive:true});
+/* Code panel: shows the whole page code and lights up the lines of the element you hover */
+const panel=document.getElementById('code');
+const limitX=()=>innerWidth>=900?panel.getBoundingClientRect().left:innerWidth;
+const VOID=['input','img','br'],SELF=['ellipse','circle','path','line','polygon','rect','use'];
+const rows=[],owners=[],range=new Map();
+function openTag(e){let s='<'+e.localName;for(const a of e.attributes){if(a.name==='data-tip')continue;let v=a.value;if(a.name==='class'){v=v.split(/\s+/).filter(c=>c&&c!=='peek'&&c!=='inspect').join(' ');if(!v)continue}s+=v===''?' '+a.name:' '+a.name+'="'+v+'"'}return s+'>'}
+function add(d,t,e){rows.push({d,t});owners.push(e)}
+function walk(e,d){const n=e.localName,o=openTag(e);const kids=[...e.childNodes].filter(k=>k.nodeType===1||k.textContent.trim());const s=rows.length;
+if(!kids.length){add(d,VOID.includes(n)?o:SELF.includes(n)?o.replace(/>$/,'/>'):o+'</'+n+'>',e)}
+else if(kids.every(k=>k.nodeType===3)){add(d,o+kids.map(k=>k.textContent).join('').trim().replace(/\s+/g,' ')+'</'+n+'>',e)}
+else{add(d,o,e);for(const k of kids){k.nodeType===1?walk(k,d+1):add(d+1,k.textContent.trim().replace(/\s+/g,' '),e)}add(d,'</'+n+'>',e)}
+range.set(e,[s,rows.length-1])}
+add(0,'<!DOCTYPE html>',null);add(0,'<html lang="en">',null);add(1,'<head> … </head>',null);add(1,'<body>',null);
+walk(document.querySelector('main'),2);
+add(2,'<script> … <\/script>',null);add(1,'</body>',null);add(0,'</html>',null);
+panel.innerHTML='<h2>The code of this page</h2><p>Move your mouse over the page. The matching lines light up here. You can also point at a line here.</p>'+rows.map((r,i)=>'<div class="ln"><span class="num">'+(i+1)+'</span><span class="cd" style="padding-left:'+r.d*1.2+'em">'+hl(r.t)+'</span></div>').join('');
+const lineEls=[...panel.querySelectorAll('.ln')];
+let lit=[],insp=null;
+function unlight(){lit.forEach(l=>l.classList.remove('on','first'));lit=[];if(insp){insp.classList.remove('inspect');insp=null}}
+function light(e){unlight();const r=range.get(e);if(!r)return;for(let i=r[0];i<=r[1];i++){lineEls[i].classList.add('on');lit.push(lineEls[i])}lineEls[r[0]].classList.add('first');
+const y=lineEls[r[0]].offsetTop;if(y<panel.scrollTop+60||y>panel.scrollTop+panel.clientHeight-sbox.offsetHeight-40)panel.scrollTo({top:Math.max(0,y-panel.clientHeight/3),behavior:'smooth'})}
+document.addEventListener('mouseover',e=>{const t=e.target;if(!t.closest)return;
+if(t.closest('main')){light(t);styles(t)}
+else if(t.closest('#code')){unlight();const l=t.closest('.ln');if(l){const o=owners[lineEls.indexOf(l)];if(o){o.classList.add('inspect');insp=o;styles(o)}}}
+else{unlight();styles(null)}});
+document.documentElement.addEventListener('mouseleave',unlight);
+/* Styles box: shows the CSS rules that decide how the hovered element looks and where it sits */
+const sbox=document.createElement('div');sbox.id='styles';panel.appendChild(sbox);
+const WHY={
+display:'How the box arranges what is inside it. flex = side by side in a row. grid = in rows and columns, like a table. block = one under the other. inline-block = sits in a line of text like a word.',
+'flex-wrap':'wrap = if there is not enough room, things move down to the next row.',
+'align-items':'Moves things up or down inside the row. center = in the middle.',
+'justify-content':'Moves things left or right. center = in the middle.',
+gap:'Empty space between the things inside.',
+margin:'Empty space OUTSIDE the box. Four numbers = top, right, bottom, left. "0 auto" = no space above and below, and equal space left and right, so the box sits in the middle.',
+padding:'Empty space INSIDE the box, between its edge and its content.',
+width:'How wide it is. rem is a size: 1rem is about the height of one letter.',
+'max-width':'It can never be wider than this.',
+'min-width':'It can never be narrower than this.',
+height:'How tall it is. auto = as tall as the content needs.',
+flex:'How much of the free space it takes. 1 = as much as it can get.',
+'grid-template-columns':'Makes the columns. repeat(auto-fit, minmax(14rem, 1fr)) = as many columns as fit, each at least 14rem wide.',
+'text-align':'Where the text sits: left, center or right.',
+color:'The color of the text.',
+background:'The color behind the content.',
+border:'A line around the box. The number is how thick the line is.',
+'border-radius':'Rounds the corners. 999px = so round that it looks like a pill.',
+'font-size':'How big the letters are.',
+'font-weight':'How thick the letters are. 700 = bold.',
+font:'Letter size, line spacing and typeface, all in one line.',
+'line-height':'How far apart the lines of text are.',
+cursor:'What the mouse arrow looks like. pointer = a hand.',
+outline:'A line drawn around the outside of the box. It takes up no space.',
+position:'fixed = stays on the screen when you scroll. sticky = sticks to an edge while you scroll.',
+overflow:'What happens if the content is bigger than the box. auto = a scroll bar appears.',
+stroke:'The color of the line around a shape.'};
+const why=p=>WHY[p]||WHY[p.split('-')[0]]||'';
+function rulesFor(el){const out=[];const scan=(list,label)=>{for(const r of list){if(r.type===1){const s=r.selectorText;if(s.startsWith('*')||/peek|inspect/.test(s))continue;let m=false;try{m=el.matches(s)}catch(x){}if(m)out.push({sel:s,label,css:r.style.cssText})}else if(r.type===4&&matchMedia(r.conditionText).matches)scan(r.cssRules,'@media '+r.conditionText)}};
+for(const sh of document.styleSheets){try{scan(sh.cssRules,'')}catch(x){}}return out}
+function styles(el){const head='<h3>Styles: how it looks and where it sits</h3>';
+if(!el||!el.localName){sbox.innerHTML=head+'<span class="why">Point at something on the page to see the CSS rules that style it.</span>';return}
+const rs=rulesFor(el);
+sbox.innerHTML=head+(rs.length?rs.map(r=>'<div class="rule">'+(r.label?'<span class="why">'+esc(r.label)+'</span>':'')+'<div class="sel">'+esc(r.sel)+' {</div>'+r.css.split(/;\s*/).filter(Boolean).map(d=>{const i=d.indexOf(':');const p=d.slice(0,i).trim(),v=d.slice(i+1).trim(),w=why(p);return '<div class="decl"><span class="prop">'+esc(p)+'</span>: <span class="val">'+esc(v)+'</span>;</div>'+(w?'<span class="why">'+esc(w)+'</span>':'')}).join('')+'<div class="sel">}</div></div>').join(''):'<span class="why">This element has no CSS rule of its own. It uses the browser\u2019s normal look and what it gets from its parent.</span>')}
+styles(null);
+</script>
+</body>
+</html>
